@@ -14,6 +14,8 @@ import javax.mail.Store;
 import javax.mail.search.FlagTerm;
 import javax.mail.search.SearchTerm;
 
+import static com.hem.gmail.NodeManager.SPLIT_SIZE;
+
 public class GmailDrive {
 
 
@@ -29,6 +31,8 @@ public class GmailDrive {
             properties.put("mail.imap.port", "993");
             properties.put("mail.imap.starttls.enable", "true");
             properties.put("mail.imap.ssl.trust", "*");
+            properties.put("mail.imaps.fetchsize", SPLIT_SIZE);
+            properties.put("mail.imaps.partialfetch", "false");
 
             Session emailSession = Session.getDefaultInstance(properties);
 
@@ -44,17 +48,27 @@ public class GmailDrive {
             NodeManager nodeManager = new NodeManager(inbox, emailSession);
 
             Scanner in = new Scanner(System.in);
-            String command;
-            System.out.println("Please enter command");
-            System.out.println("1 for Exit");
-            System.out.println("2 <File location> to upload file");
+            String command= "";
+            printMenu();
             do {
-                command = in.nextLine();
-                if (command.startsWith("2")) {
-                    String fileLocation = command.substring(2);
-                    nodeManager.uploadFile(fileLocation);
+                try {
+                    command = in.nextLine();
+                    if (command.startsWith("2")) {
+                        String fileLocation = command.substring(2);
+                        nodeManager.uploadFile(fileLocation);
+                    } else if (command.startsWith("3")) {
+                        nodeManager.printFiles();
+                    } else if (command.startsWith("4")) {
+                        nodeManager.downloadFile(command.substring(2));
+                    } else if (command.startsWith("5")) {
+                        nodeManager.deleteFile(command.substring(2));
+                    } else if (command.startsWith("0")) {
+                        printMenu();
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
                 }
-            } while(command.equalsIgnoreCase("1"));
+            } while(!command.equalsIgnoreCase("1"));
 
             inbox.close(false);
             store.close();
@@ -66,6 +80,16 @@ public class GmailDrive {
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    private static void printMenu() {
+        System.out.println("Please enter command");
+        System.out.println("0 to print commands");
+        System.out.println("1 for Exit");
+        System.out.println("2 <File location> to upload file");
+        System.out.println("3 to list files");
+        System.out.println("4 <Node1> to download files");
+        System.out.println("5 <Node1> to delete files");
     }
 
     public static void main(String[] args) {

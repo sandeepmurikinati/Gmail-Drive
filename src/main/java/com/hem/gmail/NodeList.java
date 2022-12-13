@@ -22,4 +22,13 @@ public class NodeList {
     public void addNode(Node node) {
         nodes.add(node);
     }
+
+    public Node findNode(String id) {
+        return nodes.stream().filter(each -> ("Node" + each.getId()).equalsIgnoreCase(id)).findAny().get();
+    }
+
+    public void deleteNode(String substring) {
+        Node node = findNode(substring);
+        nodes.remove(node);
+    }
 }
